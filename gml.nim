@@ -1,12 +1,4 @@
-# FIXME AW: my file wrapping around gml_parser and gml_scanner
-# added header definitions here, rather then keeping them separate
-
-# FIXME AW: would be nice to use them directory rather then requiring a shared lib
-#{.compile: "lib/gml_parser.c".}
-#{.compile: "lib/gml_scanner.c".}
-# https://github.com/nim-lang/nimble/issues/157
 {.passL: "-L. -lgml".}
-#{.link: "./libgml.a".}
 
 
 import std/strformat
