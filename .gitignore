@@ -1,0 +1,3 @@
+*.o
+gml_demo
+.DS_Store
