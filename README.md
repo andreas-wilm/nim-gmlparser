@@ -1,8 +1,18 @@
-# An attempt to parse Graph Modelling Language (GML) files with Nim
+# Parsing Graph Modelling Language (GML) files with Nim
 
-This is experimental proof of concept code, which parses Graph Modelling Language (GML) files with Nim, relying on a C library from the Faculty of Computer Science and Mathematics of the University of Passau.
+This is experimental proof of concept code, which parses Graph Modelling Language (GML) files with Nim, relying on an external C library.
 
-The GML C library can still be found on [web.archive.org](https://web.archive.org/web/20190207140002/http://www.fim.uni-passau.de/index.php?id=17297&L=1) (as also referenced by [Networkx's gml section](https://networkx.org/documentation/stable/reference/readwrite/gml.html)). Its contents are mirrored here as `gml-parser.tar.gz` and the required components in the `lib` directory, including license (see `lib/COPYING`).
+
+## Demos
+
+A simple, low-level demo can be found in `gml_demo.nim`. Compile with `nim c gml_demo.nim` and run with `./gml_demo <your.gml>`. This will simply print entries as they are parsed.
+
+A demo using a graph structure can be found in `graph.nim`. Compile with `nim c graph.nim` and run with `./graph <your.gml>`. Note this assumes that your nodes have a numeric id and edges have at least a source and a target.
+
+Note, both rely on the parser library below, which you will need to compile first.
+
+## Parser library
+The GML C library is from the Faculty of Computer Science and Mathematics of the University of Passau and can still be found on [web.archive.org](https://web.archive.org/web/20190207140002/http://www.fim.uni-passau.de/index.php?id=17297&L=1) (as also referenced by [Networkx's gml section](https://networkx.org/documentation/stable/reference/readwrite/gml.html)). Its contents are mirrored here as `gml-parser.tar.gz` and the required components in the `lib` directory, including license (see `lib/COPYING`).
 
 I compiled the C library to a shared library, just because I couldn't figure out how to use the C files as is from within the Nim project (the idea is described in [this Nim forum post](https://forum.nim-lang.org/t/5098), but I got naming clashes). To compile the library use:
 
@@ -10,5 +20,6 @@ I compiled the C library to a shared library, just because I couldn't figure out
     make
     popd
     gcc -shared -o libgml.so lib/gml_scanner.o lib/gml_parser.o
+    # ignore the gml_to_graph.cc error
 
-The wrapper is `gml.nim`. A demo can be found in `gml_demo.nim`. Compile with `nim c gml_demo.nim`
+The Nim wrapper for this library is `gml.nim`.

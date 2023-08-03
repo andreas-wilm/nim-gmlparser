@@ -1,3 +1,7 @@
+*.so
+*.a
 *.o
 gml_demo
-.DS_Store
+graph
+graph.dSYM/
+tmp/
