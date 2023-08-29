@@ -1,12 +1,5 @@
-# FIXME AW: my file wrapping around gml_parser and gml_scanner
-# added header definitions here, rather then keeping them separate
-
-# FIXME AW: would be nice to use them directory rather then requiring a shared lib
-#{.compile: "lib/gml_parser.c".}
-#{.compile: "lib/gml_scanner.c".}
-# https://github.com/nim-lang/nimble/issues/157
-{.passL: "-L. -lgml".}
-#{.link: "./libgml.a".}
+{.compile: "lib/gml_parser.c".}
+{.compile: "lib/gml_scanner.c".}
 
 
 import std/strformat
@@ -71,7 +64,7 @@ var GML_column*: cuint
 # if you are interested in the position where an error occured it is a good
 # idea to set GML_line and GML_column back.
 # This is what GML_init does.
-proc GML_init*() {.importc, dynlib:"libgml.so"}
+proc GML_init*() {.importc: "GML_init"}
 
 #  returns the next token in file. If an error occured it will be stored in
 #  GML_token.
@@ -80,13 +73,13 @@ proc GML_init*() {.importc, dynlib:"libgml.so"}
 # returns list of KEY - VALUE pairs. Errors and a pointer to a list
 # of key-names are returned in GML_stat. Previous information contained
 # in GML_stat, i.e. the key_list, will be *lost*.
-proc GML_parser*(a1: ptr FILE; a2: ptr GML_stat; a3: cint): ptr GML_pair {.importc, dynlib:"libgml.so"}
+proc GML_parser*(a1: ptr FILE; a2: ptr GML_stat; a3: cint): ptr GML_pair {.importc: "GML_parser"}
 
 # free memory used in a list of GML_pair
-proc GML_free_list*(a1: ptr GML_pair; a2: ptr GML_list_elem) {.importc, dynlib:"libgml.so"}
+proc GML_free_list*(a1: ptr GML_pair; a2: ptr GML_list_elem) {.importc: "GML_free_list"}
 
 # debugging
-#proc GML_print_list*(a1: ptr GML_pair; a2: cint) {.importc, dynlib:"libgml.so"}
+#proc GML_print_list*(a1: ptr GML_pair; a2: cint) {.importc: dynlib:"libgml.so"}
 
 
 proc fopen(pathname: cstring, mode: cstring): ptr FILE {.importc, header: "<stdio.h>".}
