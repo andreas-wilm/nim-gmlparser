@@ -64,7 +64,7 @@ var GML_column*: cuint
 # if you are interested in the position where an error occured it is a good
 # idea to set GML_line and GML_column back.
 # This is what GML_init does.
-proc GML_init*() {.importc: "GML_init"}
+proc GML_init*() {.importc: "GML_init".}
 
 #  returns the next token in file. If an error occured it will be stored in
 #  GML_token.
@@ -73,48 +73,50 @@ proc GML_init*() {.importc: "GML_init"}
 # returns list of KEY - VALUE pairs. Errors and a pointer to a list
 # of key-names are returned in GML_stat. Previous information contained
 # in GML_stat, i.e. the key_list, will be *lost*.
-proc GML_parser*(a1: ptr FILE; a2: ptr GML_stat; a3: cint): ptr GML_pair {.importc: "GML_parser"}
+proc GML_parser*(a1: ptr FILE; a2: ptr GML_stat;
+    a3: cint): ptr GML_pair {.importc: "GML_parser".}
 
 # free memory used in a list of GML_pair
-proc GML_free_list*(a1: ptr GML_pair; a2: ptr GML_list_elem) {.importc: "GML_free_list"}
+proc GML_free_list*(a1: ptr GML_pair; a2: ptr GML_list_elem) {.importc: "GML_free_list".}
 
 # debugging
 #proc GML_print_list*(a1: ptr GML_pair; a2: cint) {.importc: dynlib:"libgml.so"}
 
 
-proc fopen(pathname: cstring, mode: cstring): ptr FILE {.importc, header: "<stdio.h>".}
+proc fopen(pathname: cstring; mode: cstring): ptr FILE {.importc,
+    header: "<stdio.h>".}
 proc fclose(f: ptr FILE) {.importc, header: "<stdio.h>".}
 
 # arg: e.g. stat.key_list
 proc GML_print_keys*(list: var ptr GML_list_elem) =
-    while not isNil(list):
-        echo fmt"{list.key}"
-        list = list.next
+  while not isNil(list):
+    echo fmt"{list.key}"
+    list = list.next
 
 
-proc GML_print_list*(list: ptr GML_pair, level: int) =
-    var tmp: ptr GML_pair = list
+proc GML_print_list*(list: ptr GML_pair; level: int) =
+  var tmp: ptr GML_pair = list
 
-    while not isNil(tmp):
+  while not isNil(tmp):
 
-      for i in countup(0, level-1):
-        stdout.write fmt("    ")
-      stdout.write fmt"*KEY* : {tmp.key}"
+    for i in countup(0, level-1):
+      stdout.write fmt("    ")
+    stdout.write fmt"*KEY* : {tmp.key}"
 
-      case tmp.kind:
-        of GML_INT:
-          echo fmt("  *VALUE* (long) : {tmp.value.integer:d} ")# %ld
-        of GML_DOUBLE:
-          echo fmt("  *VALUE* (double) : {tmp.value.floating:f} ")# %f
-        of GML_STRING:
-          echo fmt("  *VALUE* (string) : {tmp.value.string} ")# %s
-        of GML_LIST:
-          echo fmt("  *VALUE* (list) : ")
-          GML_print_list(tmp.value.list, level+1)
-        else:
-          raise newException(ValueError, fmt"unknown kind {tmp.kind}" )
-              
-      tmp = tmp.next;
+    case tmp.kind:
+      of GML_INT:
+        echo fmt("  *VALUE* (long) : {tmp.value.integer:d} ") # %ld
+      of GML_DOUBLE:
+        echo fmt("  *VALUE* (double) : {tmp.value.floating:f} ") # %f
+      of GML_STRING:
+        echo fmt("  *VALUE* (string) : {tmp.value.string} ") # %s
+      of GML_LIST:
+        echo fmt("  *VALUE* (list) : ")
+        GML_print_list(tmp.value.list, level+1)
+      else:
+        raise newException(ValueError, fmt"unknown kind {tmp.kind}")
+
+    tmp = tmp.next;
 
 # FIXME AW: naming isn't great. My GML_parse() uses C GML_parser(). And ideally
 # we would like to return an object wrapping list and stat. Is that then also GML_parse?
@@ -129,7 +131,7 @@ proc GML_parse*(fname: string): (ptr GML_stat, ptr GML_pair) =
 
   if stat.err.err_num != GML_OK:
     var errmsg = fmt("An error occured while reading line {stat.err.line} column {stat.err.column} of {fname}: ")
-    
+
     case stat.err.err_num:
       of GML_UNEXPECTED:
         errmsg = errmsg & "UNEXPECTED CHARACTER"
@@ -145,7 +147,7 @@ proc GML_parse*(fname: string): (ptr GML_stat, ptr GML_pair) =
         errmsg = errmsg & "TOO MANY CLOSING BRACKETS"
       else:
         errmsg = errmsg & "UNKNOWN stat.err.err_num"
-        
+
     raise newException(ValueError, errmsg)
 
   fclose(fh)
@@ -153,6 +155,6 @@ proc GML_parse*(fname: string): (ptr GML_stat, ptr GML_pair) =
   return (stat, list)
 
 
-proc GML_free*(list: ptr GML_pair, stat: ptr GML_stat) =
+proc GML_free*(list: ptr GML_pair; stat: ptr GML_stat) =
   GML_free_list(list, stat.key_list)
   dealloc(stat)

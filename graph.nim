@@ -62,7 +62,7 @@ proc parse_edge(list: ptr GML_pair): Edge =
       result.attr[$cur.key] = $cur.value.string
 
     else:
-        raise newException(ValueError, fmt"unhandled case when parsing edge: kind {cur.kind} key {cur.key}" )
+      raise newException(ValueError, fmt"unhandled case when parsing edge: kind {cur.kind} key {cur.key}")
 
     cur = cur.next
 
@@ -86,7 +86,7 @@ proc parse_node(list: ptr GML_pair): Node =
       result.attr[$cur.key] = $cur.value.string
 
     else:
-        raise newException(ValueError, fmt"unhandled case when parsing node: kind {cur.kind} key {cur.key}" )
+      raise newException(ValueError, fmt"unhandled case when parsing node: kind {cur.kind} key {cur.key}")
 
     cur = cur.next
 
