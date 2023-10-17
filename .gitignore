@@ -5,3 +5,4 @@ gml_demo
 graph
 graph.dSYM/
 tmp/
+gml_to_edge_list

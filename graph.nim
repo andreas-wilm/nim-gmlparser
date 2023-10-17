@@ -5,21 +5,37 @@ import std/tables
 import gml
 
 
-type Edge = object
-  source: int
-  target: int
-  attr: Table[string, string]
+type Edge* = object
+  source*: int
+  target*: int
+  attr*: Table[string, string]
 
-type Node = object
-  id: int
-  attr: Table[string, string]
-  edges: seq[Edge]
+type Node* = object
+  id*: int
+  attr*: Table[string, string]
+  edges*: seq[Edge]
 
 
 # undirected
-type Graph = object
-  nodes: Table[int, Node]
-  edges: seq[Edge]
+type Graph* = object
+  nodes*: Table[int, Node]
+  edges*: seq[Edge]
+
+
+proc get_node*(g: Graph, node_id: int): Node =
+  # helper
+  return g.nodes[node_id]
+
+
+proc get_attr*(e: Edge, attr: string): string =
+  # helper
+  return e.attr[attr]
+
+proc get_attr*(n: Node, attr: string): string =
+  # helper
+  return n.attr[attr]
+
+# FIXME can we simplify get_attr and get_attr with generics?
 
 
 proc parse_edge(list: ptr GML_pair): Edge =
@@ -50,8 +66,6 @@ proc parse_edge(list: ptr GML_pair): Edge =
 
     cur = cur.next
 
-  echo fmt"Parsed edge {result.source}-{result.target} {$result.attr}"
-
 
 proc parse_node(list: ptr GML_pair): Node =
   result.attr = initTable[string, string]()
@@ -76,10 +90,9 @@ proc parse_node(list: ptr GML_pair): Node =
 
     cur = cur.next
 
-  echo fmt"Parsed node {result.id}  {$result.attr}"
 
 
-proc from_gml(self: var Graph, fname: string) =
+proc from_gml*(self: var Graph, fname: string, debug_print = false) =
   self.nodes = initTable[int, Node]()
 
   let (stat, list) = GML_parse(fname)
@@ -93,10 +106,14 @@ proc from_gml(self: var Graph, fname: string) =
     if cur.kind == GML_LIST and cur.key == "node":
       var node = parse_node(cur)
       assert not self.nodes.has_key(node.id)
+      if debug_print:
+        echo fmt"Parsed node {node.id} {$node.attr}"
       self.nodes[node.id] = node
 
     elif cur.kind == GML_LIST and cur.key == "edge":
       var edge = parse_edge(cur)
+      if debug_print:
+        echo fmt"Parsed edge {edge.source}-{edge.target} {$edge.attr}"
       self.edges.add(edge)
 
       assert self.nodes.has_key(edge.source)
@@ -112,17 +129,14 @@ proc from_gml(self: var Graph, fname: string) =
 
   GML_free(list, stat)
 
+when isMainModule:
 
-let argc = paramCount()
-let argv = commandLineParams()
-let fname = argv[0]
-echo fmt"Reading {fname}"
+  let argc = paramCount()
+  let argv = commandLineParams()
+  doAssert argc == 1
+  let fname = argv[0]
+  doAssert fileExists(fname)
+  echo fmt"Reading {fname}"
 
-var g: Graph
-g.from_gml(fname)
-
-echo """Successfully loaded graph. Now look at
- https://github.com/icasdri/gml.py/blob/master/gml.py and
- https://github.com/jciskey/pygraph/blob/master/pygraph/classes/directed_graph.py
-for inspiration
-"""
+  var g: Graph
+  g.from_gml(fname, debug_print = true)
